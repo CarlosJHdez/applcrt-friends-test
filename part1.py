@@ -1,8 +1,9 @@
-# I wrote this code using chatgpt. Is the first version of the code.
+# I wrote this code using chatgpt. Is the second version of the code.
 # I did not add any error handling at first nor any unit testing.
-# This took about 30 minutes to write and test with the example1.json file.
+# the second version took about 120 minutes to write and debug with the example1.json file.
+# i used bisect because I have a structure in mind for part 2 but wanted to keep it simple at first.
 # if the number of persons is P and the total number of experiences is E, 
-# the time complexity is O(P+E) and it uses memory O(P+E) as well.
+# the time complexity is O(P+E) and memory size is proportional to P+2E+C.
 import json
 import bisect
 import datetime
