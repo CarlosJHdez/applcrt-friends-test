@@ -1,0 +1,38 @@
+[
+{
+    "id": 0,
+    "first": "Jane",
+    "last": "Doe",
+    "phone": "1-1111111111",
+    "experience": [{
+        "company": "OrangeCart",
+        "title": "Director of Marketing",
+        "start": "2017-01-01",
+        "end": null
+    }]
+},
+{
+    "id": 1,
+    "first": "Barbie",
+    "last": "Matel",
+    "phone": "1-2222222222",
+        "experience": [{
+        "company": "OrangeCart",
+        "title": "VP of Marketing",
+        "start": "2017-01-01",
+        "end": null
+    }]
+},
+{
+    "id": 2,
+    "first": "Ken",
+    "last": "Matel",
+    "phone": "1-3333333333",
+    "experience": [{
+    "company": "OrangeCart",
+    "title": "Director of Marketing",
+    "start": "2018-01-01",
+    "end": null
+    }]
+    }
+]
