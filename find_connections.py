@@ -1,8 +1,16 @@
-#! /bin/bash python3 
-# find_connections.py
+#!/usr/bin/env python3
 
 from applcrt_connections_utils import *
 import json
+import argparse
+
+FIXED_PERSONS_FILE_NAME = 'persons.json' 
+FIXED_CONTACTS_FILE_NAME = 'contacts.json'
+
+def load_json_data(file_path):
+    """Read and parse JSON data from a file."""
+    with open(file_path, 'r') as json_file:
+        return json.load(json_file)
 
 def load_person_records_from_json_file(file_path):
     people = {}
@@ -21,6 +29,7 @@ def load_person_records_from_json_file(file_path):
             people[person.id] = person
 
     return people
+
 def load_contact_records_from_json_file(file_path):
     contact_records = []
 
@@ -44,18 +53,35 @@ def load_contact_records_from_json_file(file_path):
 
     return contact_records
 
+def print_connections(people, connection_ids):
+    connections = sorted([people[person_id] for person_id in connection_ids], key=lambda p: p.id)
+    for person in connections:
+        print(f"{person.id}: {person.first} {person.last}")
 
 
-# Example usage:
-file_path = 'persons.json'  # Replace with the path to your JSON file
-people = load_person_records_from_json_file(file_path)
-colleagues_ids = find_connected_person_ids(people, people[0].id)
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='Find colleagues and phone pals of a person per ID.')
+    parser.add_argument('person_id', type=int, help='ID of the person to find colleagues for')
+    args = parser.parse_args()
 
-# Example usage:
-file_path = 'contacts.json'  # Replace with the path to your JSON file
-contacts = load_contact_records_from_json_file(file_path)
-phone_pals_ids = find_phone_pals_ids(contacts, people, people[0].id)
+    # Load data from FIXED JSON files
+    persons_file_path = FIXED_PERSONS_FILE_NAME
+    contacts_file_path = FIXED_CONTACTS_FILE_NAME
 
-all_connections = colleagues_ids.union(phone_pals_ids)
+    persons_data = load_json_data(persons_file_path)
+    contacts_data = load_json_data(contacts_file_path)
 
-print(all_connections)
+    # Parse data
+    people = load_person_records(persons_data)
+    contact_records = load_contact_records(contacts_data)
+
+    # Find connections
+    connections = find_all_connections(people, contact_records, args.person_id)
+
+    if connections:
+        print_connections(people, connections)
+
+
+
+
+

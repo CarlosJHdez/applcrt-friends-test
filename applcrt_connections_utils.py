@@ -205,3 +205,50 @@ def normalize_phone_number(phone_number):
             return None  # Invalid phone number
     except NumberParseException:
         return None  # Invalid phone number format
+    
+def load_person_records(data):
+    """Parse JSON data to create person records."""
+    people = {}
+    for person_data in data:
+        person = Person(
+            id=person_data['id'],
+            first=person_data['first'],
+            last=person_data['last'],
+            phone=normalize_phone_number(person_data['phone']),
+        )
+        for experience in person_data['experience']:
+            person.add_experience(Experience(person, company=experience['company'], title=experience['title'], start=experience['start'], end=experience['end']))
+        people[person.id] = person
+    return people
+
+def load_contact_records(data):
+    """Parse JSON data to create contact records."""
+    contact_records = []
+    for contact_data in data:
+        id = contact_data['id']
+        owner_id = contact_data['owner_id']
+        contact_nickname = contact_data['contact_nickname']
+        phone_data = contact_data['phone']
+        
+        phones = {}
+        for phone in phone_data:
+            normalized_number = normalize_phone_number(phone['number']) 
+            if normalized_number:
+                phones[normalized_number] = {'type': phone['type']}
+        
+        contact = Contact(id, owner_id, contact_nickname, phones)
+        contact_records.append(contact)
+    return contact_records
+
+def find_all_connections(people, contacts, person_id):
+    """Find colleagues and phone pals using pre-loaded data."""
+    target_person = people.get(person_id)
+    if target_person is None:
+        print(f"Person with ID {person_id} not found.")
+        return
+
+    colleagues_ids = find_connected_person_ids(people, person_id)
+    phone_pals_ids = find_phone_pals_ids(contacts, people, person_id)
+    all_connections = colleagues_ids.union(phone_pals_ids)
+
+    return all_connections
