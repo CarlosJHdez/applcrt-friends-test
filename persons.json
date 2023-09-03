@@ -3,7 +3,7 @@
     "id": 0,
     "first": "Jane",
     "last": "Doe",
-    "phone": "1-1111111111",
+    "phone": "+1 (508)4492121",
     "experience": [{
         "company": "OrangeCart",
         "title": "Director of Marketing",
@@ -21,7 +21,7 @@
     "id": 1,
     "first": "Barbie",
     "last": "Matel",
-    "phone": "1-2222222222",
+    "phone": "1-2122635415",
         "experience": [{
         "company": "OrangeCart",
         "title": "Marketing Associate",
@@ -33,7 +33,7 @@
     "id": 2,
     "first": "Ken",
     "last": "Matel",
-    "phone": "1-3333333333",
+    "phone": "1-6462214225",
     "experience": [{
     "company": "OrangeCart",
     "title": "Director of Marketing",

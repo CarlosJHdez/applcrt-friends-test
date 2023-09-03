@@ -5,6 +5,8 @@
 import json
 import bisect
 import datetime
+import phonenumbers
+from phonenumbers.phonenumberutil import NumberParseException
         
 COLLEAGUE_LIMIT = 90  # Minimum number of days to be considered a colleague
 
@@ -117,23 +119,15 @@ class Experience:
         return f"{self.person} is {self.title} @ {self.company} starting {datetime.date.fromordinal(self.start)}, End: {end}"
 
             
-def load_person_records_from_json_file(file_path):
-    people = {}
+class Contact:
+    def __init__(self, id, owner_id, contact_nickname, phones):
+        self.id = id
+        self.owner_id = owner_id
+        self.contact_nickname = contact_nickname
+        self.phone = phones
+            
+    
 
-    with open(file_path, 'r') as json_file:
-        data = json.load(json_file)
-        for person_data in data:
-            person = Person(
-                id=person_data['id'],
-                first=person_data['first'],
-                last=person_data['last'],
-                phone=person_data['phone'],
-            )
-            for experience in person_data['experience']:
-                person.add_experience(Experience(person, company=experience['company'], title=experience['title'], start=experience['start'], end=experience['end']))
-            people[person.id] = person
-
-    return people
 
 def update_experience_with_references(people, companies_short_list):
     """Takes the people structure and updates the experience with references to the company object.
@@ -191,10 +185,23 @@ def find_connected_person_ids(people, target_id):
     return connected_ids
 
 
-# Example usage:
-file_path = 'example-1.json'  # Replace with the path to your JSON file
-people = load_person_records_from_json_file(file_path)
-connected_ids = find_connected_person_ids(people, people[0].id)
-print(connected_ids)
+def find_phone_pals_ids(contacts, people, target_id):
+    """Returns a set of peole that are phone pals with the target person. The key is the target person phone number.
+    """
+    phone_pals_ids = set()
+    target_phone = people[target_id].phone
+    for contact in contacts:
+        if target_phone in contact.phone:
+            phone_pals_ids.add(contact.owner_id)
 
+    return phone_pals_ids
 
+def normalize_phone_number(phone_number):
+    try:
+        parsed_number = phonenumbers.parse(phone_number, "US")
+        if phonenumbers.is_valid_number(parsed_number):
+            return phonenumbers.format_number(parsed_number, phonenumbers.PhoneNumberFormat.E164)
+        else:
+            return None  # Invalid phone number
+    except NumberParseException:
+        return None  # Invalid phone number format
