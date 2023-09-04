@@ -56,7 +56,7 @@ class Person:
         """Returns a list of companies that this person worked for."""
         companies = set()
         for experience in self.experience:
-            companies.add(experience.company)
+            companies.add(experience.company_name)
         return companies
         
     def __str__(self) -> str:
@@ -65,9 +65,9 @@ class Person:
 class Experience:
     """ An Experience is a period (posibly still ongoing) where a person worked for a company.
     """
-    def __init__(self, person:Person, company, title, start, end):
+    def __init__(self, person:Person, company_name, title, start, end):
         self.person = person
-        self.company = company
+        self.company_name = company_name
         self.title = title
         # convert to ordinal date to facilitate comparisons
         assert start is not None, "start date should not be None"
@@ -76,41 +76,21 @@ class Experience:
         assert self.end is None or self.end >= self.start, "end date should be after start date after the conversion to ordinal date."
   
     def overlaps_at_least(self, other, min_days):
-        # Warning! that if target_experience == None we will consider it as ongoing and
-        # All the people that are still working at the company will be considered colleagues.
-        # This might lead to colleagues that have know each other for less than min_days, if 
-        # Today is less than min_days after the start of those experiences.
-        if self.end and self.end - self.start < min_days:
-            # No overlap if the experience is less than min_days.
-            return False
-        if other.end and other.end - other.start < min_days:
-            # No overlap if the experience is less than min_days.
-            return False
-        assert not self.end or (self.end - self.start > min_days), f"self experience should be at least {min_days} long."
-        assert not other.end or (other.end - other.start > min_days), f"other experience should be at least {min_days} long."
-        # By now we know BOTH experiences are at least min_days long.
-        if other.start <= self.start:
-            if not other.end:
-                return True
-            elif other.end <= self.start:
-                return False
-            elif other.end - self.start >= min_days:
-                return True
-            else:
-                return False
+        # We first figure out when was the first day they worked together.
+        start_meet = max(self.start, other.start)
+        # If one of the experiences is ongoing, we go to special cases.
+        if not self.end and not other.end:
+            # If both experiences are ongoing, we assume there is overlap.
+            return True
+        elif not self.end:
+            end_meet = other.end
+        elif not other.end:
+            end_meet = self.end
         else:
-            if not self.end:
-                return True
-            elif not other.end:
-                return True
-            elif self.end <= other.end:
-                if other.end - self.start >= min_days:
-                    return True
-                else:
-                    return False
-            elif self.end - other.start >= min_days:
-                return True
-            
+            end_meet = min(self.end, other.end)
+        if end_meet - start_meet >= min_days:
+            return True
+                    
     def __lt__(self, other):
         """Comparison method to compare experiences based on start dates."""
         if not isinstance(other, Experience):
@@ -122,7 +102,7 @@ class Experience:
             end = "ongoing"
         else:
             end = datetime.date.fromordinal(self.end)
-        return f"{self.person} is {self.title} @ {self.company} starting {datetime.date.fromordinal(self.start)}, End: {end}"
+        return f"{self.person} is {self.title} @ {self.company_name} starting {datetime.date.fromordinal(self.start)}, End: {end}"
 
             
 class Contact:
@@ -130,12 +110,12 @@ class Contact:
         self.id = id
         self.owner_id = owner_id
         self.contact_nickname = contact_nickname
-        self.phone = phones
+        self.phones = phones
             
     
 
 
-def update_experience_with_references(people, companies_short_list):
+def get_companies_with_history(people, companies_short_list):
     """Takes the people structure and updates the experience with references to the company object.
     complexity: O(P+E+size(companies_short_list)*AvgEc*log(AvgEc)) where 
         P is the number of people 
@@ -151,15 +131,14 @@ def update_experience_with_references(people, companies_short_list):
     companies = {}
     for id in people:
         for experience in people[id].experience:
-            if experience.company not in companies_short_list:
+            if experience.company_name not in companies_short_list:
                 continue  # Shortcut to save time by focusing only on the companies of interest.
-            if experience.company not in companies:
-                company = Company(experience.company)
-                companies[str(experience.company)] = company
+            if experience.company_name not in companies:
+                company = Company(experience.company_name)
+                companies[experience.company_name] = company
             else:
-                company = companies[str(experience.company)] 
+                company = companies[experience.company_name] 
             company.add_experience(experience)
-            experience.company = company  # changing the object reference!
     return companies
 
 
@@ -184,22 +163,35 @@ def find_connected_person_ids(people, target_id):
         return None
     
     target_companies = target_person.companies_worked_for()
-    companies = update_experience_with_references(people, target_companies)
+    companies = get_companies_with_history(people, target_companies)
 
     for target_experience in target_person.experience:
-        connected_ids.update(target_experience.company.colleagues(target_experience, COLLEAGUE_LIMIT))
+        company = companies[target_experience.company_name]
+        connected_ids.update(company.colleagues(target_experience, COLLEAGUE_LIMIT))
     return connected_ids
 
 
 def find_phone_pals_ids(contacts, people, target_id):
     """Returns a set of peole that are phone pals with the target person. The key is the target person phone number.
+    The complexity of this function is O(P*log(P)+C+log(P)) where C is the number of contacts and P is the number of people.
     """
-    phone_pals_ids = set()
     target_phone = people[target_id].phone
+    
+    # Create a directory of people's phones, because it will be needed
+    phone_book = {}
+    for id in people:
+        person = people[id]
+        if person.phone is not None and person.phone not in phone_book:
+            phone_book[person.phone] = person
+            
+    phone_pals_ids = set()
     for contact in contacts:
-        if target_phone in contact.phone:
+        if contact.owner_id == target_id:
+            for phone in contact.phones:
+                if phone in phone_book:
+                    phone_pals_ids.add(phone_book[phone].id)
+        elif target_phone in contact.phones:
             phone_pals_ids.add(contact.owner_id)
-
     return phone_pals_ids
 
 def normalize_phone_number(phone_number):
@@ -225,7 +217,7 @@ def load_person_records(data):
         for experience in person_data['experience']:
             start = datetime.date.fromisoformat(experience['start']).toordinal() 
             end = None if experience['end'] is None else datetime.date.fromisoformat(experience['end']).toordinal()
-            person.add_experience(Experience(person, company=experience['company'], title=experience['title'], start=start, end=end))
+            person.add_experience(Experience(person, company_name=experience['company'], title=experience['title'], start=start, end=end))
         people[person.id] = person
     return people
 

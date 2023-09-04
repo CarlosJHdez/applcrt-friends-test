@@ -8,10 +8,10 @@ class TestCompany(unittest.TestCase):
     def test_add_experience(self):
         self.assertEqual(len(self.company.experiences), 0)
         self.assertEqual(self.company.name, "Test Company")
-        experience1 = Experience(None, self.company, "Tester", 4523, 5000)
+        experience1 = Experience(None, self.company, "Tester", 5001, 6000)
         self.company.add_experience(experience1)
         self.assertEqual(len(self.company.experiences), 1)
-        experience2 = Experience(None, self.company, "Tester", 5001, 6000)
+        experience2 = Experience(None, self.company, "Tester", 4523, 5000)
         self.company.add_experience(experience2)
         self.assertEqual(self.company.experiences[0], experience2, "Experiences should be sorted by start date")
 
@@ -47,7 +47,7 @@ class TestExperience(unittest.TestCase):
         end1 = datetime.date.fromisoformat("2023-02-01")
         exp1 = Experience(person, company, "Role A", start1 , end1.toordinal())     
         self.assertEqual(exp1.person, person)
-        self.assertEqual(exp1.company, company)
+        self.assertEqual(exp1.company_name, company)
         self.assertEqual(exp1.title, "Role A")
         self.assertEqual(exp1.start, 4000)
         self.assertEqual(datetime.date.fromordinal(exp1.end), end1)
@@ -110,6 +110,7 @@ class TestExperience(unittest.TestCase):
         exp = Experience(None, None, "Role eu1",  200, None)
         self.assertTrue(self.bounded_exp.overlaps_at_least(exp, 90))
         
+        
     def test_if_starts_equal_vs_unbounded(self):
         exp = Experience(None, None, "Role eb1",  200, self.END) 
         self.assertTrue(self.unbounded_exp.overlaps_at_least(exp, 90))
@@ -122,9 +123,9 @@ class TestExperience(unittest.TestCase):
         exp = Experience(None, None, "Role lb1",  250, self.END)
         self.assertFalse(self.bounded_exp.overlaps_at_least(exp, 90))
         exp = Experience(None, None, "Role lb1",  250, 500)
-        self.assertTrue(self.bounded_exp.overlaps_at_least(exp, 90))        
+        self.assertFalse(self.bounded_exp.overlaps_at_least(exp, 90))        
         exp = Experience(None, None, "Role lu1",  250, None)
-        self.assertTrue(self.bounded_exp.overlaps_at_least(exp, 90))
+        self.assertFalse(self.bounded_exp.overlaps_at_least(exp, 90))
  
         
     def test_if_starts_included_vs_unbounded(self):

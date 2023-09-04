@@ -25,7 +25,7 @@ def load_person_records_from_json_file(file_path):
                 phone=normalize_phone_number(person_data['phone']),
             )
             for experience in person_data['experience']:
-                person.add_experience(Experience(person, company=experience['company'], title=experience['title'], start=experience['start'], end=experience['end']))
+                person.add_experience(Experience(person, company_name=experience['company'], title=experience['title'], start=experience['start'], end=experience['end']))
             people[person.id] = person
 
     return people
