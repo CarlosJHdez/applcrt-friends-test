@@ -12,7 +12,7 @@
 },
 {
     "id": 1,
-    "owner_id": 0,
+    "owner_id": 3,
     "contact_nickname": "Barbie",
     "phone": [{
     "number": "(212) 263-5415",
@@ -24,13 +24,13 @@
 },
 {
     "id": 2,
-    "owner_id": 0,
+    "owner_id": 3,
     "contact_nickname": "Ken",
     "phone": [{
     "number": "(212) 2345678",
     "type": "landline"
     }, {
-    "number": "+1646-221-4225",
+    "number": "+1646-221-4505",
     "type": "cell"
     }]
 },
@@ -42,7 +42,7 @@
     "number": "+1(339)3333333",
     "type": "landline"
     }, {
-    "number": "+1(917)3333333",
+    "number": "+1(646)2214505",
     "type": "cell"
     }]
 },
@@ -54,7 +54,7 @@
     "number": "+1(201)2212222",
     "type": "landline"
     }, {
-    "number": "+1(310)3102222",
+    "number": "+1(212)2635415",
     "type": "cell"
     }]
 }

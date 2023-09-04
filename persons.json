@@ -1,5 +1,4 @@
-[
-{
+[{
     "id": 0,
     "first": "Jane",
     "last": "Doe",
@@ -33,12 +32,24 @@
     "id": 2,
     "first": "Ken",
     "last": "Matel",
-    "phone": "1-6462214225",
+    "phone": "1-6462214505",
     "experience": [{
     "company": "OrangeCart",
     "title": "Director of Marketing",
     "start": "2018-01-01",
     "end": null
+    }]
+    },
+{
+    "id": 3,
+    "first": "Allan",
+    "last": "Matel",
+    "phone": null,
+    "experience": [{
+    "company": "BlueCart",
+    "title": "Director of Nothing",
+    "start": "2015-06-01",
+    "end": "2016-01-01"
     }]
     }
 ]

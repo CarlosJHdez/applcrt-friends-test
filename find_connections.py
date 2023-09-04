@@ -12,46 +12,6 @@ def load_json_data(file_path):
     with open(file_path, 'r') as json_file:
         return json.load(json_file)
 
-def load_person_records_from_json_file(file_path):
-    people = {}
-
-    with open(file_path, 'r') as json_file:
-        data = json.load(json_file)
-        for person_data in data:
-            person = Person(
-                id=person_data['id'],
-                first=person_data['first'],
-                last=person_data['last'],
-                phone=normalize_phone_number(person_data['phone']),
-            )
-            for experience in person_data['experience']:
-                person.add_experience(Experience(person, company_name=experience['company'], title=experience['title'], start=experience['start'], end=experience['end']))
-            people[person.id] = person
-
-    return people
-
-def load_contact_records_from_json_file(file_path):
-    contact_records = []
-
-    with open(file_path, 'r') as json_file:
-        data = json.load(json_file)
-        for contact_data in data:
-            id = contact_data['id']
-            owner_id = contact_data['owner_id']
-            contact_nickname = contact_data['contact_nickname']
-            phone_data = contact_data['phone']
-            
-            # Create a dictionary of phone numbers and their types
-            phones = {}
-            for phone in phone_data:
-                normalized_number = normalize_phone_number(phone['number']) 
-                if normalized_number:
-                    phones[normalized_number] = {'type': phone['type']}
-            
-            contact = Contact(id, owner_id, contact_nickname, phones)
-            contact_records.append(contact)
-
-    return contact_records
 
 def print_connections(people, connection_ids):
     connections = sorted([people[person_id] for person_id in connection_ids], key=lambda p: p.id)
