@@ -2,7 +2,6 @@
 # Read a json file that contains people, and its jobs at various companies.
 # Organize it in a way that is easy to find people related to each other because:
 # - They worked at the same company for a minimum period of 90 days.
-import json
 import bisect
 import datetime
 import phonenumbers
@@ -71,8 +70,10 @@ class Experience:
         self.company = company
         self.title = title
         # convert to ordinal date to facilitate comparisons
-        self.start = datetime.date.fromisoformat(start).toordinal() 
-        self.end = None if end is None else datetime.date.fromisoformat(end).toordinal()
+        assert start is not None, "start date should not be None"
+        self.start = start
+        self.end = end
+        assert self.end is None or self.end >= self.start, "end date should be after start date after the conversion to ordinal date."
   
     def overlaps_at_least(self, other, min_days):
         # Warning! that if target_experience == None we will consider it as ongoing and
@@ -102,6 +103,11 @@ class Experience:
                 return True
             elif not other.end:
                 return True
+            elif self.end <= other.end:
+                if other.end - self.start >= min_days:
+                    return True
+                else:
+                    return False
             elif self.end - other.start >= min_days:
                 return True
             
@@ -217,7 +223,9 @@ def load_person_records(data):
             phone=normalize_phone_number(person_data['phone']),
         )
         for experience in person_data['experience']:
-            person.add_experience(Experience(person, company=experience['company'], title=experience['title'], start=experience['start'], end=experience['end']))
+            start = datetime.date.fromisoformat(experience['start']).toordinal() 
+            end = None if experience['end'] is None else datetime.date.fromisoformat(experience['end']).toordinal()
+            person.add_experience(Experience(person, company=experience['company'], title=experience['title'], start=start, end=end))
         people[person.id] = person
     return people
 

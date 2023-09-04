@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from applcrt_connections_utils import *
+from apcrt_connections_utils import *
 import json
 import argparse
 
