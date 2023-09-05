@@ -125,6 +125,11 @@ class TestIntegration(unittest.TestCase):
         self.contacts = load_contact_records(contact_data)
 
     def test_find_connected_person_ids(self):
+        # On the test data, the following people worked with each other:
+        # 0: 1, 2, 3
+        # 1: 0
+        # 2: 0
+        # 3: 0
         colleagues_ids = find_connected_person_ids(self.people, 0)
         self.assertEqual( colleagues_ids, {1, 2, 3})
         colleagues_ids = find_connected_person_ids(self.people, 1)
@@ -135,6 +140,11 @@ class TestIntegration(unittest.TestCase):
         self.assertEqual( colleagues_ids, {0})
 
     def test_find_phone_pals_ids(self):
+        # On the test data, the following people have the phone number of one another:
+        # 0: None.. she has no phone pals!
+        # 3: 1, 2
+        # 1: 1
+        # 2: 1
         phone_pals_ids = find_phone_pals_ids(self.contacts, self.people, 0)
         self.assertEqual(len(phone_pals_ids), 0)
         phone_pals_ids = find_phone_pals_ids(self.contacts, self.people, 1)
@@ -145,6 +155,7 @@ class TestIntegration(unittest.TestCase):
         self.assertEqual(phone_pals_ids, {1, 2})
 
     def test_find_all_connections(self):
+        # This test must be simply the union of the other two.
         all_connections = find_all_connections(self.people, self.contacts, 0)
         self.assertEqual(all_connections, {1, 2, 3})
         all_connections = find_all_connections(self.people, self.contacts, 1)
