@@ -157,7 +157,7 @@ class TestExperience(unittest.TestCase):
         exp = Experience(None, None, "Role lb1", 250, 500)
         self.assertTrue(self.unbounded_exp.overlaps_at_least(exp, 90), "Starts during the unbounded experience, end is irrelevant")
         exp = Experience(None, None, "Role lu1", 250, None)
-        self.assertTrue(self.unbounded_exp.overlaps_at_least(exp, 90, "Starts during the unbounded experience, is unbounded as well")
+        self.assertTrue(self.unbounded_exp.overlaps_at_least(exp, 90), "Starts during the unbounded experience, is unbounded as well")
 
     def test_if_starts_late_vs_bounded(self):
         """Test cases where the experience being compared starts after the start of the bounded experience.
@@ -182,10 +182,11 @@ class TestExperience(unittest.TestCase):
 
 class TestContact(unittest.TestCase):
     def test_attributes(self):
-        person = Person(1, "John", "Doe", "123-456-7890")
-        contact = Contact(person, "123-456-7890")
-        self.assertEqual(contact.person, person)
-        self.assertEqual(contact.phone, "123-456-7890")
+        contact = Contact(1, 2, "Mom", ["+1 (508)4492121"])
+        self.assertEqual(contact.contact_id, 1)
+        self.assertEqual(contact.owner_id, 2)
+        self.assertEqual(contact.contact_nickname, "Mom")
+        self.assertEqual(contact.phones, ["+1 (508)4492121"])
 
 
 class TestNormalizePhoneNumber(unittest.TestCase):
@@ -207,7 +208,7 @@ class TestNormalizePhoneNumber(unittest.TestCase):
         result = normalize_phone_number("    (917) 345-  4768")
         self.assertEqual(result, "+19173454768", "Spaces are removed")
         result = normalize_phone_number("    917-345  -  4768   ")
-        self.assertEqual(result, "+19173454768, ", "Spaces are removed")
+        self.assertEqual(result, "+19173454768", "Spaces are removed")
 
     def test_invalid_phone_number(self):
         # Test with an invalid phone number
